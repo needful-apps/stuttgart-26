@@ -299,6 +299,15 @@ a:hover {
     display: block;
 }
 
+/* Home Section spezielles Padding */
+#home {
+    padding: 0;
+}
+
+.home-info {
+    padding: var(--spacing-2xl) 0;
+}
+
 .section-header {
     margin-bottom: var(--spacing-2xl);
     text-align: center;
