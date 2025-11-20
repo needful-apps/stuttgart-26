@@ -1,0 +1,162 @@
+[
+  {
+    "title": "🔴 [Kritisch] Mobile Menu bleibt manchmal offen",
+    "body": "## Fehlerbeschreibung\nBei schnellem Navigieren zwischen Sektionen kann das Mobile Menu im geöffneten Zustand bleiben.\n\n## Erwartetes Verhalten\nMobile Menu soll sich automatisch schließen nach Navigation.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~270)\n\n```javascript\nnavigateToSection(sectionId) {\n    // Hide all sections\n    document.querySelectorAll('.content-section').forEach(section => {\n        section.classList.remove('active');\n    });\n    \n    // Show target section\n    const targetSection = document.getElementById(sectionId);\n    if (targetSection) {\n        targetSection.classList.add('active');\n        // ... Animation code\n    }\n}\n```\n\n## Problem\n`closeMobileMenu()` wird zwar aufgerufen, aber Race Conditions können auftreten wenn Navigation während Menu-Animation erfolgt.\n\n## Lösungsvorschlag\nTimeout hinzufügen oder Promise-basierte Animation verwenden.\n\n## Priorität\n🔴 Kritisch\n\n## Labels\n`bug`, `critical`, `mobile`, `ux`\n\n## Referenz\nTests.MD Abschnitt 1.3",
+    "labels": ["bug", "critical", "mobile", "ux"]
+  },
+  {
+    "title": "🔴 [Kritisch] XSS-Anfälligkeit bei Event-Rendering",
+    "body": "## Fehlerbeschreibung\nEvent-Daten werden ohne Sanitization direkt ins HTML eingefügt.\n\n## Erwartetes Verhalten\nUser-Input sollte immer escaped werden.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~730-750)\n\n```javascript\nrenderEventCard(event) {\n    return `\n        <div class=\"event-card\" data-event-id=\"${event.id}\">\n            <h3 class=\"event-title\">${event.title}</h3>\n            <p class=\"event-description\">${event.description}</p>\n        </div>\n    `;\n}\n```\n\n## Problem\nWenn `event.title` oder `event.description` HTML-Tags enthalten, werden diese ausgeführt.\n\n## Lösungsvorschlag\nHTML escapen oder `textContent` statt `innerHTML` verwenden:\n\n```javascript\nconst escapeHtml = (text) => {\n    const div = document.createElement('div');\n    div.textContent = text;\n    return div.innerHTML;\n};\n\nrenderEventCard(event) {\n    return `\n        <h3 class=\"event-title\">${escapeHtml(event.title)}</h3>\n    `;\n}\n```\n\n## Priorität\n🔴 Kritisch - Sicherheitslücke!\n\n## Labels\n`security`, `critical`, `xss`, `bug`\n\n## Referenz\nTests.MD Abschnitt 5.1",
+    "labels": ["security", "critical", "xss", "bug"]
+  },
+  {
+    "title": "🔴 [Kritisch] Keine Content Security Policy",
+    "body": "## Fehlerbeschreibung\nKeine CSP-Header oder Meta-Tags definiert.\n\n## Erwartetes Verhalten\nCSP sollte definiert sein um XSS-Angriffe zu verhindern.\n\n## Gefundener Codeabschnitt\nFehlt komplett im `<head>`\n\n## Problem\nKeine Schutzmaßnahmen gegen Code-Injection.\n\n## Lösungsvorschlag\nCSP Meta-Tag hinzufügen:\n\n```html\n<meta http-equiv=\"Content-Security-Policy\" \n      content=\"default-src 'self'; script-src 'self' 'unsafe-inline' https://cdn.jsdelivr.net; style-src 'self' 'unsafe-inline' https://fonts.googleapis.com;\">\n```\n\n## Priorität\n🔴 Kritisch - Sicherheitslücke!\n\n## Labels\n`security`, `critical`, `csp`, `enhancement`\n\n## Referenz\nTests.MD Abschnitt 5.2",
+    "labels": ["security", "critical", "csp", "enhancement"]
+  },
+  {
+    "title": "🟡 Inkonsistente Datumsfilterung in Events",
+    "body": "## Fehlerbeschreibung\nDer Datumsfilter \"Diese Woche\" und \"Dieser Monat\" berücksichtigt nicht die endDate von Events.\n\n## Erwartetes Verhalten\nEvents die über mehrere Tage laufen sollten auch angezeigt werden wenn sie im Zeitraum aktiv sind.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~585-610)\n\n```javascript\napplyFilters() {\n    this.filteredEvents = this.events.filter(event => {\n        // Datum Filter\n        if (this.currentFilters.date) {\n            const eventDate = new Date(event.date);\n            const now = new Date();\n            \n            switch (this.currentFilters.date) {\n                case 'today':\n                    if (eventDate.toDateString() !== now.toDateString()) {\n                        return false;\n                    }\n                    break;\n                case 'week':\n                    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);\n                    if (eventDate < now || eventDate > weekFromNow) {\n                        return false;\n                    }\n                    break;\n            }\n        }\n        return true;\n    });\n}\n```\n\n## Problem\n`event.endDate` wird nicht berücksichtigt. Events wie \"Frühlingsfest 2025\" (15.04. - 05.05.) werden nicht korrekt gefiltert.\n\n## Lösungsvorschlag\nendDate in Filterlogik einbauen.\n\n## Priorität\n🟡 Mittel\n\n## Labels\n`bug`, `medium`, `events`, `filter`\n\n## Referenz\nTests.MD Abschnitt 2.1",
+    "labels": ["bug", "medium", "events", "filter"]
+  },
+  {
+    "title": "🟡 Fehlende Accessibility-Labels bei interaktiven Elementen",
+    "body": "## Fehlerbeschreibung\nFilter-Dropdowns und Suchfelder haben keine `aria-label` oder `label` Attribute.\n\n## Erwartetes Verhalten\nScreen-Reader sollten alle Steuerelemente eindeutig benennen können.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~72-87)\n\n```html\n<select id=\"dateFilter\" class=\"filter-select\">\n    <option value=\"\">Alle Termine</option>\n    <option value=\"today\">Heute</option>\n    <option value=\"week\">Diese Woche</option>\n    <option value=\"month\">Dieser Monat</option>\n</select>\n```\n\n## Problem\nKeine `aria-label` oder zugehöriges `<label>` Element.\n\n## Lösungsvorschlag\nAccessibility-Attribute hinzufügen:\n\n```html\n<select id=\"dateFilter\" class=\"filter-select\" aria-label=\"Events nach Datum filtern\">\n```\n\n## Priorität\n🟡 Mittel\n\n## Labels\n`accessibility`, `a11y`, `medium`, `enhancement`\n\n## Referenz\nTests.MD Abschnitt 2.2",
+    "labels": ["accessibility", "a11y", "medium", "enhancement"]
+  },
+  {
+    "title": "🟡 News-Suche funktioniert nicht mit Umlauten",
+    "body": "## Fehlerbeschreibung\nDie Suche nach \"Grünflächen\" findet keine Ergebnisse, obwohl der Begriff vorkommt.\n\n## Erwartetes Verhalten\nSuche sollte auch Umlaute und Sonderzeichen korrekt verarbeiten.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~960-970)\n\n```javascript\nsearchServices(query) {\n    const lowerQuery = query.toLowerCase();\n    return this.services.filter(service => \n        service.title.toLowerCase().includes(lowerQuery) ||\n        service.description.toLowerCase().includes(lowerQuery) ||\n        service.keywords.some(keyword => keyword.toLowerCase().includes(lowerQuery))\n    );\n}\n```\n\n## Problem\nEinfaches `toLowerCase()` funktioniert nicht optimal für deutsche Umlaute.\n\n## Lösungsvorschlag\n`localeCompare` oder Normalisierung verwenden:\n\n```javascript\nconst normalizedQuery = query.toLowerCase().normalize('NFD').replace(/[\\u0300-\\u036f]/g, \"\");\n```\n\n## Priorität\n🟡 Mittel\n\n## Labels\n`bug`, `medium`, `search`, `i18n`\n\n## Referenz\nTests.MD Abschnitt 2.3",
+    "labels": ["bug", "medium", "search", "i18n"]
+  },
+  {
+    "title": "🟡 CSS-Variablen werden in CSS-Strings nicht aufgelöst",
+    "body": "## Fehlerbeschreibung\nInline-Styles in JavaScript verwenden CSS-Variablen die im Browser nicht korrekt dargestellt werden.\n\n## Erwartetes Verhalten\nFarben sollten korrekt als Hex/RGB-Werte angezeigt werden.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~665)\n\n```javascript\nconst categoryColors = {\n    'kultur': 'var(--color-primary)',\n    'sport': 'var(--color-success)',\n    'musik': 'var(--stuttgart-yellow)',\n    'theater': '#9c27b0'\n};\n\nconst categoryColor = categoryColors[event.category] || 'var(--color-primary)';\n\nreturn `\n    <div class=\"event-image\" style=\"background: linear-gradient(135deg, ${categoryColor}, ${categoryColor}dd);\">\n```\n\n## Problem\n`${categoryColor}dd` fügt `dd` an `var(--color-primary)` an, was zu `var(--color-primary)dd` wird - ungültiges CSS.\n\n## Lösungsvorschlag\nFarben im JavaScript auflösen oder nur echte Hex/RGB-Werte verwenden.\n\n## Priorität\n🟡 Mittel\n\n## Labels\n`bug`, `medium`, `css`, `styling`\n\n## Referenz\nTests.MD Abschnitt 2.4",
+    "labels": ["bug", "medium", "css", "styling"]
+  },
+  {
+    "title": "🟡 Featured-Badge Position überschneidet sich mit Kategorie-Icon",
+    "body": "## Fehlerbeschreibung\nBei kleineren Bildschirmen überlappt der \"Highlight\" Badge mit dem Kategorie-Icon.\n\n## Erwartetes Verhalten\nBeide Elemente sollten klar sichtbar sein ohne Überlappung.\n\n## Gefundener Codeabschnitt\n**Datei:** `components.css` (Zeile ~1050-1061)\n\n```css\n.featured-badge {\n    position: absolute;\n    top: var(--spacing-sm);\n    right: var(--spacing-sm);\n    background: var(--color-accent);\n    color: var(--text-primary);\n    padding: var(--spacing-xs) var(--spacing-sm);\n    border-radius: var(--radius-sm);\n    font-size: var(--font-size-xs);\n    font-weight: 600;\n    text-transform: uppercase;\n}\n```\n\n## Problem\nKeine Media Query für kleine Screens, kann mit Kategorie-Icon kollidieren.\n\n## Lösungsvorschlag\nPosition auf Mobile anpassen oder z-index erhöhen.\n\n## Priorität\n🟡 Mittel\n\n## Labels\n`bug`, `medium`, `css`, `responsive`, `mobile`\n\n## Referenz\nTests.MD Abschnitt 2.5",
+    "labels": ["bug", "medium", "css", "responsive", "mobile"]
+  },
+  {
+    "title": "🟡 Inkonsistente Error-Handling Patterns",
+    "body": "## Fehlerbeschreibung\nManche Manager verwenden `showError()`, andere `console.error()`, wieder andere gar nichts.\n\n## Erwartetes Verhalten\nEinheitliches Error-Handling über alle Module.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (diverse Stellen)\n\n```javascript\n// EventsManager:\ncatch (error) {\n    console.error('Error initializing EventsManager:', error);\n    this.showError('Fehler beim Laden der Events');\n}\n\n// NewsManager:\ncatch (error) {\n    console.error('Error initializing NewsManager:', error);\n    this.showError('Fehler beim Laden der Nachrichten');\n}\n\n// ServicesManager: GAR KEIN try-catch!\ninit() {\n    this.loadServices();\n    this.setupEventListeners();\n}\n```\n\n## Problem\nInkonsistenz, ServicesManager hat keine Fehlerbehandlung.\n\n## Lösungsvorschlag\nEinheitliche Error-Handling-Strategie implementieren.\n\n## Priorität\n🟡 Mittel\n\n## Labels\n`refactor`, `medium`, `error-handling`, `code-quality`\n\n## Referenz\nTests.MD Abschnitt 3.3",
+    "labels": ["refactor", "medium", "error-handling", "code-quality"]
+  },
+  {
+    "title": "🟡 Farbkontrast bei gelben Badges zu niedrig",
+    "body": "## Fehlerbeschreibung\nGelbe Badges auf weißem Hintergrund haben Kontrastverhältnis < 4.5:1.\n\n## Erwartetes Verhalten\nMindestens 4.5:1 für normalen Text, 3:1 für große Texte (WCAG 2.1).\n\n## Gefundener Codeabschnitt\n**Datei:** `components.css` (Zeile ~325)\n\n```css\n.event-category {\n    background-color: var(--color-accent); /* #ffcb05 */\n    color: var(--text-primary); /* #212121 */\n}\n```\n\n## Problem\n`#ffcb05` auf `#ffffff` hat nur 1.89:1 Kontrast (zu niedrig!).\n\n## Lösungsvorschlag\nDunkleren Farbton verwenden oder Border hinzufügen.\n\n## Priorität\n🟡 Mittel\n\n## Labels\n`accessibility`, `a11y`, `medium`, `wcag`, `styling`\n\n## Referenz\nTests.MD Abschnitt 8.1",
+    "labels": ["accessibility", "a11y", "medium", "wcag", "styling"]
+  },
+  {
+    "title": "🟡 Zeitzone-Probleme bei Datumsvergleichen",
+    "body": "## Fehlerbeschreibung\nDatumsvergleiche verwenden lokale Zeitzone, kann zu falschen Filterungen führen.\n\n## Erwartetes Verhalten\nEinheitliche Zeitzone für alle Datumsoperationen.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~590)\n\n```javascript\nconst eventDate = new Date(event.date);\nconst now = new Date();\n\nif (eventDate.toDateString() !== now.toDateString()) {\n    return false;\n}\n```\n\n## Problem\n`toDateString()` verwendet lokale Zeitzone, kann zu Inkonsistenzen führen.\n\n## Lösungsvorschlag\nUTC verwenden oder Zeitzone explizit handhaben.\n\n## Priorität\n🟡 Mittel\n\n## Labels\n`bug`, `medium`, `datetime`, `i18n`\n\n## Referenz\nTests.MD Abschnitt 6.1",
+    "labels": ["bug", "medium", "datetime", "i18n"]
+  },
+  {
+    "title": "🟡 JSON-Daten haben inkonsistente Strukturen",
+    "body": "## Fehlerbeschreibung\nEvents haben `endDate` (optional), News haben `publishedAt`, Services haben weder noch.\n\n## Erwartetes Verhalten\nEinheitliche Datenstruktur über alle Entitäten.\n\n## Gefundener Codeabschnitt\n**events.json:**\n```json\n{\n  \"id\": 1,\n  \"date\": \"2025-04-15\",\n  \"endDate\": \"2025-05-05\",  // Optional!\n  \"time\": \"10:00\"\n}\n```\n\n**news.json:**\n```json\n{\n  \"id\": 1,\n  \"publishedAt\": \"2025-03-15T09:00:00Z\",  // ISO Format\n  \"readTime\": 3\n}\n```\n\n## Problem\nInkonsistente Feldnamen und Formate erschweren gemeinsame Verarbeitung.\n\n## Lösungsvorschlag\nSchema definieren und einhalten.\n\n## Priorität\n🟡 Mittel\n\n## Labels\n`data`, `medium`, `json`, `refactor`\n\n## Referenz\nTests.MD Abschnitt 6.2",
+    "labels": ["data", "medium", "json", "refactor"]
+  },
+  {
+    "title": "🟢 Duplizierter Code bei Mock-Daten",
+    "body": "## Fehlerbeschreibung\nMock-Daten werden sowohl in JavaScript als auch in JSON-Dateien definiert.\n\n## Erwartetes Verhalten\nEinheitliche Datenquelle, entweder nur JSON oder nur JavaScript.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~500-530)\n\n```javascript\nloadMockEvents() {\n    this.events = [\n        {\n            id: 1,\n            title: \"Stuttgarter Frühlingsfest 2025\",\n            description: \"Das traditionelle Frühlingsfest auf dem Cannstatter Wasen...\",\n            // ... mehr Daten\n        }\n    ];\n}\n```\n\n## Problem\nDiese Daten existieren auch in `data/events.json`. Redundanz führt zu Inkonsistenzen.\n\n## Lösungsvorschlag\nMock-Daten entfernen und nur JSON verwenden, oder JSON-Import als Fallback behalten.\n\n## Priorität\n🟢 Klein\n\n## Labels\n`refactor`, `low`, `code-quality`, `duplication`\n\n## Referenz\nTests.MD Abschnitt 3.1",
+    "labels": ["refactor", "low", "code-quality", "duplication"]
+  },
+  {
+    "title": "🟢 Magic Numbers in Zeitberechnungen",
+    "body": "## Fehlerbeschreibung\nZeitberechnungen verwenden hardcoded Zahlen ohne Konstanten.\n\n## Erwartetes Verhalten\nVerwendung benannter Konstanten für bessere Lesbarkeit.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~593-598)\n\n```javascript\ncase 'week':\n    const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);\n    if (eventDate < now || eventDate > weekFromNow) {\n        return false;\n    }\n    break;\n```\n\n## Problem\n`7 * 24 * 60 * 60 * 1000` ist schwer lesbar.\n\n## Lösungsvorschlag\nKonstanten definieren:\n\n```javascript\nconst MILLISECONDS_PER_DAY = 24 * 60 * 60 * 1000;\nconst DAYS_PER_WEEK = 7;\nconst weekFromNow = new Date(now.getTime() + DAYS_PER_WEEK * MILLISECONDS_PER_DAY);\n```\n\n## Priorität\n🟢 Klein\n\n## Labels\n`refactor`, `low`, `code-quality`, `readability`\n\n## Referenz\nTests.MD Abschnitt 3.2",
+    "labels": ["refactor", "low", "code-quality", "readability"]
+  },
+  {
+    "title": "🟢 Fehlende Input-Validierung bei Services-Suche",
+    "body": "## Fehlerbeschreibung\nSehr lange Sucheingaben werden nicht begrenzt und können UI brechen.\n\n## Erwartetes Verhalten\nMaximale Länge für Sucheingaben sollte definiert sein.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~142)\n\n```html\n<input type=\"text\" id=\"servicesSearch\" class=\"search-input large\" \n       placeholder=\"z.B. Ausweis, Eheschließung, Umzug...\">\n```\n\n## Problem\nKein `maxlength` Attribut, keine JavaScript-Validierung.\n\n## Lösungsvorschlag\nAttribute hinzufügen:\n\n```html\n<input type=\"text\" id=\"servicesSearch\" class=\"search-input large\" \n       placeholder=\"z.B. Ausweis, Eheschließung, Umzug...\"\n       maxlength=\"100\">\n```\n\n## Priorität\n🟢 Klein\n\n## Labels\n`enhancement`, `low`, `validation`, `ux`\n\n## Referenz\nTests.MD Abschnitt 3.4",
+    "labels": ["enhancement", "low", "validation", "ux"]
+  },
+  {
+    "title": "🟢 Notification-Styles werden dynamisch injiziert",
+    "body": "## Fehlerbeschreibung\nNotification-CSS wird per JavaScript in den `<head>` eingefügt statt in separater CSS-Datei.\n\n## Erwartetes Verhalten\nAlle Styles sollten in CSS-Dateien sein, nicht in JavaScript.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~1450-1480)\n\n```javascript\nconst notificationStyles = `\n    .notification {\n        position: fixed;\n        top: 20px;\n        right: 20px;\n        // ... viele weitere Styles\n    }\n`;\n\nconst styleSheet = document.createElement('style');\nstyleSheet.textContent = notificationStyles;\ndocument.head.appendChild(styleSheet);\n```\n\n## Problem\nCSS gehört nicht in JavaScript. Macht Debugging und Wartung schwieriger.\n\n## Lösungsvorschlag\nStyles in `components.css` verschieben.\n\n## Priorität\n🟢 Klein\n\n## Labels\n`refactor`, `low`, `css`, `code-quality`\n\n## Referenz\nTests.MD Abschnitt 3.5",
+    "labels": ["refactor", "low", "css", "code-quality"]
+  },
+  {
+    "title": "🟢 Fehlende Debounce bei Window Resize",
+    "body": "## Fehlerbeschreibung\nWindow-Resize Event-Handler wird bei jeder Pixeländerung ausgeführt.\n\n## Erwartetes Verhalten\nDebouncing für Performance-Optimierung.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~219-223)\n\n```javascript\n// Handle window resize\nwindow.addEventListener('resize', () => {\n    if (window.innerWidth > 991 && this.mobileMenuOpen) {\n        this.closeMobileMenu();\n    }\n});\n```\n\n## Problem\nWird hunderte Male pro Sekunde aufgerufen beim Resize.\n\n## Lösungsvorschlag\nDebounce-Funktion verwenden (existiert bereits im Code für News-Suche!).\n\n## Priorität\n🟢 Klein\n\n## Labels\n`performance`, `low`, `enhancement`\n\n## Referenz\nTests.MD Abschnitt 3.6",
+    "labels": ["performance", "low", "enhancement"]
+  },
+  {
+    "title": "🟢 Chart.js wird synchron geladen",
+    "body": "## Fehlerbeschreibung\nChart.js CDN wird im `<head>` synchron geladen, blockiert Seitenrendering.\n\n## Erwartetes Verhalten\nAsynchrones Laden für bessere Performance.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~16)\n\n```html\n<!-- Chart.js für Dashboard -->\n<script src=\"https://cdn.jsdelivr.net/npm/chart.js\"></script>\n```\n\n## Problem\nBlockiert Rendering bis Script geladen ist.\n\n## Lösungsvorschlag\n`defer` oder `async` Attribut hinzufügen:\n\n```html\n<script src=\"https://cdn.jsdelivr.net/npm/chart.js\" defer></script>\n```\n\n## Priorität\n🟢 Klein\n\n## Labels\n`performance`, `low`, `enhancement`\n\n## Referenz\nTests.MD Abschnitt 3.7",
+    "labels": ["performance", "low", "enhancement"]
+  },
+  {
+    "title": "🟢 Favicon fehlt tatsächlich",
+    "body": "## Fehlerbeschreibung\nHTML referenziert `assets/favicon.ico` aber Datei existiert nicht im Projekt.\n\n## Erwartetes Verhalten\nFavicon sollte vorhanden sein oder Link entfernt werden.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~8)\n\n```html\n<!-- Favicons -->\n<link rel=\"icon\" type=\"image/x-icon\" href=\"assets/favicon.ico\">\n```\n\n## Problem\nDatei fehlt, führt zu 404-Fehler im Browser.\n\n## Lösungsvorschlag\nFavicon erstellen oder Link entfernen.\n\n## Priorität\n🟢 Klein\n\n## Labels\n`enhancement`, `low`, `assets`\n\n## Referenz\nTests.MD Abschnitt 3.8",
+    "labels": ["enhancement", "low", "assets"]
+  },
+  {
+    "title": "🟢 Stuttgart-Logo SVG wird nicht inline geladen",
+    "body": "## Fehlerbeschreibung\nLogo wird als externes SVG referenziert, könnte inline sein für bessere Performance.\n\n## Erwartetes Verhalten\nKleines SVG sollte inline sein um HTTP-Request zu sparen.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~32)\n\n```html\n<img src=\"assets/stuttgart-logo.svg\" alt=\"Stuttgart Logo\" class=\"logo\">\n```\n\n## Problem\nZusätzlicher HTTP-Request, Logo könnte fehlen wenn Datei nicht existiert.\n\n## Lösungsvorschlag\nSVG inline in HTML einbetten.\n\n## Priorität\n🟢 Klein\n\n## Labels\n`performance`, `low`, `enhancement`\n\n## Referenz\nTests.MD Abschnitt 3.9",
+    "labels": ["performance", "low", "enhancement"]
+  },
+  {
+    "title": "🟢 Fehlende Meta-Tags für SEO",
+    "body": "## Fehlerbeschreibung\nWichtige SEO-Meta-Tags fehlen (Open Graph, Twitter Cards).\n\n## Erwartetes Verhalten\nVollständige Meta-Tags für Social Media Sharing.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~1-9)\n\n```html\n<head>\n    <meta charset=\"UTF-8\">\n    <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n    <title>Stuttgart Mobil - Interaktive Bürger-Info-Webapp</title>\n    <meta name=\"description\" content=\"Moderne Web-App für Bürgerinformationen der Stadt Stuttgart\">\n```\n\n## Problem\nKeine OG-Tags, keine Twitter-Cards, keine Keywords.\n\n## Lösungsvorschlag\nMeta-Tags hinzufügen:\n\n```html\n<meta property=\"og:title\" content=\"Stuttgart Mobil\">\n<meta property=\"og:description\" content=\"Moderne Web-App für Bürgerinformationen\">\n<meta property=\"og:type\" content=\"website\">\n<meta name=\"twitter:card\" content=\"summary_large_image\">\n```\n\n## Priorität\n🟢 Klein\n\n## Labels\n`enhancement`, `low`, `seo`\n\n## Referenz\nTests.MD Abschnitt 3.10",
+    "labels": ["enhancement", "low", "seo"]
+  },
+  {
+    "title": "🟢 Alle Event-Cards werden sofort gerendert",
+    "body": "## Fehlerbeschreibung\nBei vielen Events (100+) werden alle Cards auf einmal ins DOM geladen.\n\n## Erwartetes Verhalten\nLazy Loading oder Pagination für bessere Performance.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~710-720)\n\n```javascript\nrenderEvents() {\n    const eventsGrid = document.getElementById('eventsGrid');\n    if (!eventsGrid) return;\n    \n    eventsGrid.classList.remove('loading');\n    \n    if (this.filteredEvents.length === 0) {\n        eventsGrid.innerHTML = this.renderEmptyState();\n        return;\n    }\n    \n    const sortedEvents = this.filteredEvents.sort((a, b) => {\n        if (a.featured && !b.featured) return -1;\n        if (!a.featured && b.featured) return 1;\n        return new Date(a.date) - new Date(b.date);\n    });\n    \n    eventsGrid.innerHTML = sortedEvents.map(event => this.renderEventCard(event)).join('');\n}\n```\n\n## Problem\nAlle Events werden gleichzeitig gerendert, kann bei großen Datenmengen langsam werden.\n\n## Lösungsvorschlag\nPagination oder Infinite Scrolling implementieren.\n\n## Priorität\n🟢 Klein (wird erst bei vielen Events relevant)\n\n## Labels\n`performance`, `low`, `enhancement`\n\n## Referenz\nTests.MD Abschnitt 4.1",
+    "labels": ["performance", "low", "enhancement"]
+  },
+  {
+    "title": "🟢 Animations-Performance bei vielen Event-Cards",
+    "body": "## Fehlerbeschreibung\n`animateEventCards()` manipuliert Style direkt, triggert Reflows.\n\n## Erwartetes Verhalten\nCSS-Klassen für Animationen verwenden statt direkter Style-Manipulation.\n\n## Gefundener Codeabschnitt\n**Datei:** `index.html` (Zeile ~820-830)\n\n```javascript\nanimateEventCards() {\n    const cards = document.querySelectorAll('.event-card');\n    cards.forEach((card, index) => {\n        card.style.opacity = '0';\n        card.style.transform = 'translateY(30px)';\n        \n        setTimeout(() => {\n            card.style.transition = 'all 0.4s ease-out';\n            card.style.opacity = '1';\n            card.style.transform = 'translateY(0)';\n        }, index * 100);\n    });\n}\n```\n\n## Problem\nDirekte Style-Manipulation ist langsam, mehrfache Reflows.\n\n## Lösungsvorschlag\nCSS-Animationen mit Klassen verwenden:\n\n```javascript\ncards.forEach((card, index) => {\n    setTimeout(() => card.classList.add('animate-fade-in'), index * 100);\n});\n```\n\n## Priorität\n🟢 Klein\n\n## Labels\n`performance`, `low`, `css`, `refactor`\n\n## Referenz\nTests.MD Abschnitt 4.2",
+    "labels": ["performance", "low", "css", "refactor"]
+  },
+  {
+    "title": "🟢 CSS Custom Properties nicht überall unterstützt",
+    "body": "## Fehlerbeschreibung\nKeine Fallback-Werte für ältere Browser die CSS Variables nicht unterstützen.\n\n## Erwartetes Verhalten\nFallback-Werte für kritische Styles.\n\n## Gefundener Codeabschnitt\n**Datei:** `styles.css` (Zeile ~1-10)\n\n```css\n:root {\n    --stuttgart-blue: #005ca9;\n    --stuttgart-yellow: #ffcb05;\n    --stuttgart-green: #7cb342;\n}\n```\n\n## Problem\nIE11 und ältere Browser unterstützen keine CSS Variables.\n\n## Lösungsvorschlag\nFallback-Werte definieren:\n\n```css\n.nav-link {\n    color: #ffffff; /* Fallback */\n    color: var(--text-inverse);\n}\n```\n\n## Priorität\n🟢 Klein (IE11 ist End-of-Life)\n\n## Labels\n`enhancement`, `low`, `css`, `browser-compat`\n\n## Referenz\nTests.MD Abschnitt 7.1",
+    "labels": ["enhancement", "low", "css", "browser-compat"]
+  },
+  {
+    "title": "🟢 Z-Index-Werte ohne System",
+    "body": "## Fehlerbeschreibung\nZ-Index-Werte sind willkürlich gewählt (10, 1000, 10000).\n\n## Erwartetes Verhalten\nSystematisches Z-Index-System mit definierten Ebenen.\n\n## Gefundener Codeabschnitt\n**Diverse CSS-Dateien:**\n```css\n.main-header { z-index: 1000; }\n.notification { z-index: 10000; }\n```\n\n## Problem\nKeine klare Hierarchie, schwer wartbar.\n\n## Lösungsvorschlag\nZ-Index-System als CSS-Variablen definieren:\n\n```css\n:root {\n    --z-base: 1;\n    --z-dropdown: 100;\n    --z-sticky: 200;\n    --z-modal: 300;\n    --z-notification: 400;\n}\n```\n\n## Priorität\n🟢 Klein\n\n## Labels\n`refactor`, `low`, `css`, `code-quality`\n\n## Referenz\nTests.MD Abschnitt 7.2",
+    "labels": ["refactor", "low", "css", "code-quality"]
+  },
+  {
+    "title": "🟢 Fehlende Vendor-Prefixes",
+    "body": "## Fehlerbeschreibung\nModerne CSS-Features ohne Vendor-Prefixes für ältere Browser.\n\n## Erwartetes Verhalten\nKritische Features sollten Prefixes haben.\n\n## Gefundener Codeabschnitt\n**Datei:** `styles.css` (Zeile ~138)\n\n```css\nbody {\n    -webkit-font-smoothing: antialiased;\n    -moz-osx-font-smoothing: grayscale;\n}\n```\n\n## Problem\n`backdrop-filter`, `clip-path` und andere moderne Features fehlen Prefixes.\n\n## Lösungsvorschlag\nAutoprefixer verwenden oder manuell hinzufügen.\n\n## Priorität\n🟢 Klein\n\n## Labels\n`enhancement`, `low`, `css`, `browser-compat`\n\n## Referenz\nTests.MD Abschnitt 7.3",
+    "labels": ["enhancement", "low", "css", "browser-compat"]
+  },
+  {
+    "title": "🟢 Keine Skip-Navigation für Keyboard-User",
+    "body": "## Fehlerbeschreibung\nKeine \"Skip to main content\" Link für Tastatur-Navigation.\n\n## Erwartetes Verhalten\nErster fokussierbarer Link sollte zu Main Content springen können.\n\n## Gefundener Codeabschnitt\nFehlt komplett\n\n## Problem\nKeyboard-User müssen durch gesamte Navigation tabben.\n\n## Lösungsvorschlag\nSkip-Link hinzufügen:\n\n```html\n<a href=\"#main-content\" class=\"skip-link\">Zum Hauptinhalt springen</a>\n```\n\n## Priorität\n🟢 Klein\n\n## Labels\n`accessibility`, `a11y`, `low`, `enhancement`\n\n## Referenz\nTests.MD Abschnitt 8.2",
+    "labels": ["accessibility", "a11y", "low", "enhancement"]
+  },
+  {
+    "title": "🟢 Focus-Reihenfolge bei Mobile Menu falsch",
+    "body": "## Fehlerbeschreibung\nWenn Mobile Menu geschlossen ist, sind Links noch fokussierbar.\n\n## Erwartetes Verhalten\nVersteckte Elemente sollten nicht fokussierbar sein.\n\n## Gefundener Codeabschnitt\n**Datei:** `responsive.css` (Zeile ~180)\n\n```css\n.nav-menu {\n    display: none;\n}\n\n.nav-menu.active {\n    display: block;\n}\n```\n\n## Problem\n`display: none` entfernt aus Tab-Order, aber `visibility: hidden` wäre besser mit `max-height` Animation.\n\n## Lösungsvorschlag\n`inert` Attribut verwenden oder `tabindex=\"-1\"` bei geschlossenem Menu.\n\n## Priorität\n🟢 Klein\n\n## Labels\n`accessibility`, `a11y`, `low`, `enhancement`\n\n## Referenz\nTests.MD Abschnitt 8.3",
+    "labels": ["accessibility", "a11y", "low", "enhancement"]
+  },
+  {
+    "title": "🟢 Smooth Scrolling in Safari",
+    "body": "## Fehlerbeschreibung\n`scroll-behavior: smooth` funktioniert nicht in älteren Safari-Versionen.\n\n## Erwartetes Verhalten\nPolyfill oder Fallback für unsupported Browser.\n\n## Gefundener Codeabschnitt\n**Datei:** `styles.css` (Zeile ~102)\n\n```css\nhtml {\n    scroll-behavior: smooth;\n}\n```\n\n## Problem\nSafari < 15.4 unterstützt dies nicht.\n\n## Lösungsvorschlag\nJavaScript-Fallback:\n\n```javascript\nif (!('scrollBehavior' in document.documentElement.style)) {\n    // Polyfill laden\n}\n```\n\n## Priorität\n🟢 Klein\n\n## Labels\n`enhancement`, `low`, `browser-compat`\n\n## Referenz\nTests.MD Abschnitt 9.1",
+    "labels": ["enhancement", "low", "browser-compat"]
+  },
+  {
+    "title": "🟢 Grid-Template in IE11",
+    "body": "## Fehlerbeschreibung\nCSS Grid wird extensiv verwendet, funktioniert nicht in IE11.\n\n## Erwartetes Verhalten\nFlexbox-Fallback oder Browser-Warnung.\n\n## Gefundener Codeabschnitt\n**Datei:** `components.css` (viele Stellen)\n\n```css\n.events-grid {\n    display: grid;\n    grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));\n}\n```\n\n## Problem\nIE11 hat keine/limitierte Grid-Unterstützung.\n\n## Lösungsvorschlag\n@supports Query oder Flexbox-Fallback.\n\n## Priorität\n🟢 Klein (IE11 ist End-of-Life)\n\n## Labels\n`enhancement`, `low`, `css`, `browser-compat`\n\n## Referenz\nTests.MD Abschnitt 9.2",
+    "labels": ["enhancement", "low", "css", "browser-compat"]
+  },
+  {
+    "title": "🟢 Events.json: Fehlende Pflichtfelder",
+    "body": "## Fehlerbeschreibung\nManche Events haben keine `time`, andere haben zusätzlich `endTime`.\n\n## Erwartetes Verhalten\nKonsistentes Schema mit required/optional Feldern dokumentiert.\n\n## Gefundener Codeabschnitt\n**Datei:** `events.json`\n\n```json\n{\n  \"id\": 2,\n  \"time\": \"18:00\",\n  \"endTime\": \"02:00\"  // Nur bei manchen Events\n}\n```\n\n## Problem\nInkonsistenz führt zu potentiellen Render-Fehlern.\n\n## Lösungsvorschlag\nJSON-Schema definieren und validieren.\n\n## Priorität\n🟢 Klein\n\n## Labels\n`data`, `low`, `json`, `validation`\n\n## Referenz\nTests.MD Abschnitt 10.1",
+    "labels": ["data", "low", "json", "validation"]
+  },
+  {
+    "title": "🟢 News.json: URL-Felder ohne Validierung",
+    "body": "## Fehlerbeschreibung\n`image` Felder sind nur Dateinamen, keine vollständigen Pfade.\n\n## Erwartetes Verhalten\nVollständige Pfade oder Konsistente Konvention.\n\n## Gefundener Codeabschnitt\n**Datei:** `news.json`\n\n```json\n{\n  \"image\": \"smart_city.jpg\"\n}\n```\n\n## Problem\nBilder werden nie geladen da Pfad unvollständig ist.\n\n## Lösungsvorschlag\nVollständige Pfade oder Basis-URL definieren.\n\n## Priorität\n🟢 Klein\n\n## Labels\n`data`, `low`, `json`, `bug`\n\n## Referenz\nTests.MD Abschnitt 10.2",
+    "labels": ["data", "low", "json", "bug"]
+  }
+]
