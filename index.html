@@ -33,6 +33,7 @@
             
             <div class="nav-menu" id="navMenu">
                 <ul class="nav-links">
+                    <li><a href="#home" class="nav-link" data-section="home">Startseite</a></li>
                     <li><a href="#events" class="nav-link active" data-section="events">Events & Kultur</a></li>
                     <li><a href="#news" class="nav-link" data-section="news">Aktuelles</a></li>
                     <li><a href="#services" class="nav-link" data-section="services">Bürger-Services</a></li>
@@ -50,19 +51,46 @@
 
     <!-- Main Content -->
     <main class="main-content">
-        <!-- Hero Section -->
-        <section class="hero-section">
-            <div class="hero-content">
-                <h2 class="hero-title">Willkommen in Stuttgart</h2>
-                <p class="hero-subtitle">Ihre moderne Plattform für Bürgerinformationen, Events und Services</p>
+        <!-- Home Section (Hero) -->
+        <section id="home" class="content-section active">
+            <div class="hero-section">
+                <div class="hero-content">
+                    <h2 class="hero-title">Willkommen in Stuttgart</h2>
+                    <p class="hero-subtitle">Ihre moderne Plattform für Bürgerinformationen, Events und Services</p>
+                </div>
+                <div class="hero-visual">
+                    <div class="stuttgart-skyline"></div>
+                </div>
             </div>
-            <div class="hero-visual">
-                <div class="stuttgart-skyline"></div>
+            <div class="home-info">
+                <h3 style="text-align: center; margin-bottom: var(--spacing-xl); color: var(--color-primary);">Was bietet Stuttgart Mobil?</h3>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: var(--spacing-xl); margin-bottom: var(--spacing-2xl);">
+                    <div style="text-align: center; padding: var(--spacing-xl); background: var(--bg-secondary); border-radius: var(--radius-lg);">
+                        <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">🎭</div>
+                        <h4 style="color: var(--color-primary); margin-bottom: var(--spacing-sm);">Events & Kultur</h4>
+                        <p style="color: var(--text-secondary); margin: 0;">Entdecken Sie die vielfältigen Kulturangebote und Veranstaltungen in Stuttgart</p>
+                    </div>
+                    <div style="text-align: center; padding: var(--spacing-xl); background: var(--bg-secondary); border-radius: var(--radius-lg);">
+                        <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">📰</div>
+                        <h4 style="color: var(--color-primary); margin-bottom: var(--spacing-sm);">Aktuelle News</h4>
+                        <p style="color: var(--text-secondary); margin: 0;">Bleiben Sie informiert über wichtige Nachrichten aus der Stadt</p>
+                    </div>
+                    <div style="text-align: center; padding: var(--spacing-xl); background: var(--bg-secondary); border-radius: var(--radius-lg);">
+                        <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">🏛️</div>
+                        <h4 style="color: var(--color-primary); margin-bottom: var(--spacing-sm);">Bürger-Services</h4>
+                        <p style="color: var(--text-secondary); margin: 0;">Finden Sie schnell die richtigen Dienstleistungen und Ansprechpartner</p>
+                    </div>
+                    <div style="text-align: center; padding: var(--spacing-xl); background: var(--bg-secondary); border-radius: var(--radius-lg);">
+                        <div style="font-size: 3rem; margin-bottom: var(--spacing-md);">📊</div>
+                        <h4 style="color: var(--color-primary); margin-bottom: var(--spacing-sm);">Klima Dashboard</h4>
+                        <p style="color: var(--text-secondary); margin: 0;">Verfolgen Sie die Nachhaltigkeitsziele und Umweltdaten der Stadt</p>
+                    </div>
+                </div>
             </div>
         </section>
 
         <!-- Event & Kultur Section -->
-        <section id="events" class="content-section active">
+        <section id="events" class="content-section">
             <div class="section-header">
                 <h2 class="section-title">Events & Kultur</h2>
                 <div class="filter-controls">
@@ -219,7 +247,7 @@
         // =================================================================================
         class StuttgartMobilApp {
             constructor() {
-                this.currentSection = 'events';
+                this.currentSection = 'home';
                 this.mobileMenuOpen = false;
                 this.init();
             }
@@ -325,7 +353,7 @@
             }
             
             setupNavigation() {
-                this.updateActiveNavigation('events');
+                this.updateActiveNavigation('home');
             }
             
             navigateToSection(sectionId) {
@@ -376,12 +404,12 @@
             
             loadInitialContent() {
                 const hash = window.location.hash.substring(1);
-                const validSections = ['events', 'news', 'services', 'dashboard'];
+                const validSections = ['home', 'events', 'news', 'services', 'dashboard'];
                 
                 if (hash && validSections.includes(hash)) {
                     this.navigateToSection(hash);
                 } else {
-                    this.navigateToSection('events');
+                    this.navigateToSection('home');
                 }
                 
                 window.addEventListener('popstate', () => {
@@ -389,7 +417,7 @@
                     if (hash && validSections.includes(hash)) {
                         this.navigateToSection(hash);
                     } else {
-                        this.navigateToSection('events');
+                        this.navigateToSection('home');
                     }
                 });
             }
