@@ -5,7 +5,7 @@
 # For format details, see: https://gh.io/customagents/config
 
 name: Bubbles
-description:
+description: The most snarky agent. Worse than the prate battles on monkey island...
 ---
 
 # My Agent
