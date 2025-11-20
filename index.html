@@ -1,0 +1,1866 @@
+<!DOCTYPE html>
+<html lang="de">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Stuttgart Mobil - Interaktive Bürger-Info-Webapp</title>
+    <meta name="description" content="Moderne Web-App für Bürgerinformationen der Stadt Stuttgart">
+    
+    <!-- Favicons -->
+    <link rel="icon" type="image/x-icon" href="assets/favicon.ico">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Chart.js für Dashboard -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- Custom Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <link rel="stylesheet" href="css/components.css">
+    <link rel="stylesheet" href="css/responsive.css">
+</head>
+<body>
+    <!-- Header -->
+    <header class="main-header">
+        <nav class="nav-container">
+            <div class="nav-brand">
+                <img src="assets/stuttgart-logo.svg" alt="Stuttgart Logo" class="logo">
+                <h1 class="brand-title">Stuttgart Mobil</h1>
+            </div>
+            
+            <div class="nav-menu" id="navMenu">
+                <ul class="nav-links">
+                    <li><a href="#events" class="nav-link active" data-section="events">Events & Kultur</a></li>
+                    <li><a href="#news" class="nav-link" data-section="news">Aktuelles</a></li>
+                    <li><a href="#services" class="nav-link" data-section="services">Bürger-Services</a></li>
+                    <li><a href="#dashboard" class="nav-link" data-section="dashboard">Klima Dashboard</a></li>
+                </ul>
+            </div>
+            
+            <button class="mobile-menu-toggle" id="mobileMenuToggle">
+                <span></span>
+                <span></span>
+                <span></span>
+            </button>
+        </nav>
+    </header>
+
+    <!-- Main Content -->
+    <main class="main-content">
+        <!-- Hero Section -->
+        <section class="hero-section">
+            <div class="hero-content">
+                <h2 class="hero-title">Willkommen in Stuttgart</h2>
+                <p class="hero-subtitle">Ihre moderne Plattform für Bürgerinformationen, Events und Services</p>
+            </div>
+            <div class="hero-visual">
+                <div class="stuttgart-skyline"></div>
+            </div>
+        </section>
+
+        <!-- Event & Kultur Section -->
+        <section id="events" class="content-section active">
+            <div class="section-header">
+                <h2 class="section-title">Events & Kultur</h2>
+                <div class="filter-controls">
+                    <select id="dateFilter" class="filter-select">
+                        <option value="">Alle Termine</option>
+                        <option value="today">Heute</option>
+                        <option value="week">Diese Woche</option>
+                        <option value="month">Dieser Monat</option>
+                    </select>
+                    <select id="categoryFilter" class="filter-select">
+                        <option value="">Alle Kategorien</option>
+                        <option value="kultur">Kultur</option>
+                        <option value="sport">Sport</option>
+                        <option value="musik">Musik</option>
+                        <option value="theater">Theater</option>
+                    </select>
+                    <select id="locationFilter" class="filter-select">
+                        <option value="">Alle Orte</option>
+                        <option value="mitte">Stuttgart-Mitte</option>
+                        <option value="bad-cannstatt">Bad Cannstatt</option>
+                        <option value="vaihingen">Vaihingen</option>
+                    </select>
+                </div>
+            </div>
+            <div id="eventsGrid" class="events-grid loading">
+                <div class="loading-spinner">Lade Events...</div>
+            </div>
+        </section>
+
+        <!-- Aktuelles Section -->
+        <section id="news" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Aktuell in Stuttgart</h2>
+                <div class="news-controls">
+                    <input type="text" id="newsSearch" class="search-input" placeholder="Nachrichten durchsuchen...">
+                    <select id="newsSort" class="filter-select">
+                        <option value="date">Nach Datum</option>
+                        <option value="relevance">Nach Relevanz</option>
+                    </select>
+                </div>
+            </div>
+            <div class="news-container">
+                <div id="highlightNews" class="highlight-news">
+                    <div class="loading-spinner">Lade Top-Artikel...</div>
+                </div>
+                <div id="newsList" class="news-list">
+                    <div class="loading-spinner">Lade Nachrichten...</div>
+                </div>
+            </div>
+        </section>
+
+        <!-- Bürger-Services Section -->
+        <section id="services" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Bürger-Services Navigator</h2>
+                <p class="section-subtitle">Finden Sie schnell die richtigen Services und zuständigen Ämter</p>
+            </div>
+            <div class="services-search">
+                <div class="search-container">
+                    <input type="text" id="servicesSearch" class="search-input large" 
+                           placeholder="z.B. Ausweis, Eheschließung, Umzug...">
+                    <button class="search-btn" id="servicesSearchBtn">
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                            <circle cx="11" cy="11" r="8"></circle>
+                            <path d="m21 21-4.35-4.35"></path>
+                        </svg>
+                    </button>
+                </div>
+                <div class="quick-services">
+                    <h3>Häufige Services:</h3>
+                    <div class="service-tags">
+                        <button class="service-tag" data-service="ausweis">Personalausweis</button>
+                        <button class="service-tag" data-service="umzug">Ummeldung</button>
+                        <button class="service-tag" data-service="heirat">Eheschließung</button>
+                        <button class="service-tag" data-service="fuehrerschein">Führerschein</button>
+                        <button class="service-tag" data-service="gewerbe">Gewerbeanmeldung</button>
+                    </div>
+                </div>
+            </div>
+            <div id="servicesResults" class="services-results">
+                <div class="results-placeholder">
+                    <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor">
+                        <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2"></path>
+                        <rect x="8" y="2" width="8" height="4" rx="1" ry="1"></rect>
+                    </svg>
+                    <p>Suchen Sie nach einem Service oder wählen Sie aus den häufigen Services oben</p>
+                </div>
+            </div>
+        </section>
+
+        <!-- Klima Dashboard Section -->
+        <section id="dashboard" class="content-section">
+            <div class="section-header">
+                <h2 class="section-title">Stuttgart Klima Dashboard</h2>
+                <p class="section-subtitle">Aktuelle Daten zu Umwelt und Nachhaltigkeit in Stuttgart</p>
+            </div>
+            <div class="dashboard-grid">
+                <div class="dashboard-card">
+                    <h3 class="card-title">Grünflächenanteil</h3>
+                    <canvas id="greenSpaceChart"></canvas>
+                </div>
+                <div class="dashboard-card">
+                    <h3 class="card-title">Fahrradverkehr</h3>
+                    <canvas id="bikeTrafficChart"></canvas>
+                </div>
+                <div class="dashboard-card">
+                    <h3 class="card-title">E-Ladestationen</h3>
+                    <canvas id="chargingStationsChart"></canvas>
+                </div>
+                <div class="dashboard-card">
+                    <h3 class="card-title">Luftqualität</h3>
+                    <canvas id="airQualityChart"></canvas>
+                </div>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="main-footer">
+        <div class="footer-content">
+            <div class="footer-section">
+                <h4>Stuttgart Mobil</h4>
+                <p>Ihre moderne Plattform für Bürgerinformationen</p>
+            </div>
+            <div class="footer-section">
+                <h4>Kontakt</h4>
+                <p>Landeshauptstadt Stuttgart<br>
+                   Marktplatz 1<br>
+                   70173 Stuttgart</p>
+            </div>
+            <div class="footer-section">
+                <h4>Links</h4>
+                <ul>
+                    <li><a href="#" class="footer-link">Impressum</a></li>
+                    <li><a href="#" class="footer-link">Datenschutz</a></li>
+                    <li><a href="#" class="footer-link">Barrierefreiheit</a></li>
+                </ul>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>&copy; 2025 Landeshauptstadt Stuttgart. Alle Rechte vorbehalten.</p>
+        </div>
+    </footer>
+
+    <!-- JavaScript direkt eingebettet -->
+    <script>
+        /**
+         * Stuttgart Mobil - Haupt JavaScript
+         * Alle Module direkt in der HTML-Datei eingebettet
+         */
+
+        // =================================================================================
+        // HAUPT-APP KLASSE
+        // =================================================================================
+        class StuttgartMobilApp {
+            constructor() {
+                this.currentSection = 'events';
+                this.mobileMenuOpen = false;
+                this.init();
+            }
+            
+            init() {
+                this.setupEventListeners();
+                this.setupMobileMenu();
+                this.setupNavigation();
+                this.loadInitialContent();
+                
+                // Smooth loading animation
+                setTimeout(() => {
+                    document.body.classList.add('loaded');
+                }, 100);
+            }
+            
+            setupEventListeners() {
+                // Navigation Links
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        const section = link.getAttribute('data-section');
+                        this.navigateToSection(section);
+                        this.closeMobileMenu();
+                    });
+                });
+                
+                // Mobile Menu Toggle
+                const mobileToggle = document.getElementById('mobileMenuToggle');
+                if (mobileToggle) {
+                    mobileToggle.addEventListener('click', () => {
+                        this.toggleMobileMenu();
+                    });
+                }
+                
+                // Close mobile menu when clicking outside
+                document.addEventListener('click', (e) => {
+                    const navMenu = document.getElementById('navMenu');
+                    const mobileToggle = document.getElementById('mobileMenuToggle');
+                    
+                    if (this.mobileMenuOpen && 
+                        !navMenu.contains(e.target) && 
+                        !mobileToggle.contains(e.target)) {
+                        this.closeMobileMenu();
+                    }
+                });
+                
+                // Handle window resize
+                window.addEventListener('resize', () => {
+                    if (window.innerWidth > 991 && this.mobileMenuOpen) {
+                        this.closeMobileMenu();
+                    }
+                });
+            }
+            
+            setupMobileMenu() {
+                const navMenu = document.getElementById('navMenu');
+                const mobileToggle = document.getElementById('mobileMenuToggle');
+                
+                if (navMenu && mobileToggle) {
+                    navMenu.style.maxHeight = '0';
+                    navMenu.style.overflow = 'hidden';
+                    navMenu.style.transition = 'max-height 0.3s ease-in-out';
+                }
+            }
+            
+            toggleMobileMenu() {
+                if (this.mobileMenuOpen) {
+                    this.closeMobileMenu();
+                } else {
+                    this.openMobileMenu();
+                }
+            }
+            
+            openMobileMenu() {
+                const navMenu = document.getElementById('navMenu');
+                const mobileToggle = document.getElementById('mobileMenuToggle');
+                
+                if (navMenu && mobileToggle) {
+                    this.mobileMenuOpen = true;
+                    navMenu.classList.add('active');
+                    mobileToggle.classList.add('active');
+                    navMenu.style.maxHeight = navMenu.scrollHeight + 'px';
+                    
+                    mobileToggle.setAttribute('aria-expanded', 'true');
+                    navMenu.setAttribute('aria-hidden', 'false');
+                }
+            }
+            
+            closeMobileMenu() {
+                const navMenu = document.getElementById('navMenu');
+                const mobileToggle = document.getElementById('mobileMenuToggle');
+                
+                if (navMenu && mobileToggle) {
+                    this.mobileMenuOpen = false;
+                    navMenu.classList.remove('active');
+                    mobileToggle.classList.remove('active');
+                    navMenu.style.maxHeight = '0';
+                    
+                    mobileToggle.setAttribute('aria-expanded', 'false');
+                    navMenu.setAttribute('aria-hidden', 'true');
+                }
+            }
+            
+            setupNavigation() {
+                this.updateActiveNavigation('events');
+            }
+            
+            navigateToSection(sectionId) {
+                // Hide all sections
+                document.querySelectorAll('.content-section').forEach(section => {
+                    section.classList.remove('active');
+                });
+                
+                // Show target section
+                const targetSection = document.getElementById(sectionId);
+                if (targetSection) {
+                    targetSection.classList.add('active');
+                    
+                    // Add entrance animation
+                    targetSection.style.opacity = '0';
+                    targetSection.style.transform = 'translateY(20px)';
+                    
+                    requestAnimationFrame(() => {
+                        targetSection.style.transition = 'all 0.3s ease-out';
+                        targetSection.style.opacity = '1';
+                        targetSection.style.transform = 'translateY(0)';
+                    });
+                    
+                    this.updateActiveNavigation(sectionId);
+                    this.currentSection = sectionId;
+                    
+                    if (history.pushState) {
+                        history.pushState(null, null, `#${sectionId}`);
+                    }
+                    
+                    targetSection.scrollIntoView({
+                        behavior: 'smooth',
+                        block: 'start'
+                    });
+                }
+            }
+            
+            updateActiveNavigation(activeSection) {
+                document.querySelectorAll('.nav-link').forEach(link => {
+                    link.classList.remove('active');
+                });
+                
+                const activeLink = document.querySelector(`.nav-link[data-section="${activeSection}"]`);
+                if (activeLink) {
+                    activeLink.classList.add('active');
+                }
+            }
+            
+            loadInitialContent() {
+                const hash = window.location.hash.substring(1);
+                const validSections = ['events', 'news', 'services', 'dashboard'];
+                
+                if (hash && validSections.includes(hash)) {
+                    this.navigateToSection(hash);
+                } else {
+                    this.navigateToSection('events');
+                }
+                
+                window.addEventListener('popstate', () => {
+                    const hash = window.location.hash.substring(1);
+                    if (hash && validSections.includes(hash)) {
+                        this.navigateToSection(hash);
+                    } else {
+                        this.navigateToSection('events');
+                    }
+                });
+            }
+            
+            showNotification(message, type = 'info') {
+                const notification = document.createElement('div');
+                notification.className = `notification notification-${type}`;
+                notification.innerHTML = `
+                    <div class="notification-content">
+                        <span class="notification-message">${message}</span>
+                        <button class="notification-close" aria-label="Schließen">×</button>
+                    </div>
+                `;
+                
+                document.body.appendChild(notification);
+                
+                setTimeout(() => {
+                    this.removeNotification(notification);
+                }, 5000);
+                
+                notification.querySelector('.notification-close').addEventListener('click', () => {
+                    this.removeNotification(notification);
+                });
+                
+                requestAnimationFrame(() => {
+                    notification.classList.add('show');
+                });
+            }
+            
+            removeNotification(notification) {
+                notification.classList.add('hide');
+                setTimeout(() => {
+                    if (notification.parentNode) {
+                        notification.parentNode.removeChild(notification);
+                    }
+                }, 300);
+            }
+            
+            formatDate(dateString) {
+                const date = new Date(dateString);
+                return date.toLocaleDateString('de-DE', {
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+            }
+        }
+
+        // =================================================================================
+        // EVENTS MANAGER
+        // =================================================================================
+        class EventsManager {
+            constructor() {
+                this.events = [];
+                this.filteredEvents = [];
+                this.currentFilters = {
+                    date: '',
+                    category: '',
+                    location: ''
+                };
+                this.init();
+            }
+            
+            async init() {
+                try {
+                    await this.loadEvents();
+                    this.setupEventListeners();
+                    this.setupEventLinkListeners();
+                    this.renderEvents();
+                } catch (error) {
+                    console.error('Error initializing EventsManager:', error);
+                    this.showError('Fehler beim Laden der Events');
+                }
+            }
+            
+            async loadEvents() {
+                try {
+                    const response = await fetch('data/events.json');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    this.events = await response.json();
+                    this.filteredEvents = [...this.events];
+                } catch (error) {
+                    console.error('Error loading events:', error);
+                    this.loadMockEvents();
+                }
+            }
+            
+            loadMockEvents() {
+                this.events = [
+                    {
+                        id: 1,
+                        title: "Stuttgarter Frühlingsfest 2025",
+                        description: "Das traditionelle Frühlingsfest auf dem Cannstatter Wasen mit Fahrgeschäften und schwäbischen Spezialitäten.",
+                        category: "kultur",
+                        date: "2025-04-15",
+                        time: "10:00",
+                        location: "Cannstatter Wasen",
+                        price: "Eintritt frei",
+                        featured: true,
+                        tags: ["fest", "familie", "tradition"]
+                    },
+                    {
+                        id: 2,
+                        title: "VfB Stuttgart vs. Bayern München",
+                        description: "Bundesliga-Topspiel in der Mercedes-Benz Arena. Der VfB empfängt den deutschen Rekordmeister.",
+                        category: "sport",
+                        date: "2025-04-12",
+                        time: "15:30",
+                        location: "Mercedes-Benz Arena",
+                        price: "Ab 35€",
+                        featured: true,
+                        tags: ["fußball", "bundesliga", "sport"]
+                    },
+                    {
+                        id: 3,
+                        title: "Lange Nacht der Museen",
+                        description: "Über 80 Museen öffnen ihre Türen für eine besondere Nacht voller Kultur.",
+                        category: "kultur",
+                        date: "2025-03-22",
+                        time: "18:00",
+                        location: "Verschiedene Museen",
+                        price: "18€ Erwachsene",
+                        featured: false,
+                        tags: ["museum", "kultur", "bildung"]
+                    }
+                ];
+                this.filteredEvents = [...this.events];
+            }
+            
+            setupEventListeners() {
+                const dateFilter = document.getElementById('dateFilter');
+                const categoryFilter = document.getElementById('categoryFilter');
+                const locationFilter = document.getElementById('locationFilter');
+                
+                if (dateFilter) {
+                    dateFilter.addEventListener('change', (e) => {
+                        this.currentFilters.date = e.target.value;
+                        this.applyFilters();
+                    });
+                }
+                
+                if (categoryFilter) {
+                    categoryFilter.addEventListener('change', (e) => {
+                        this.currentFilters.category = e.target.value;
+                        this.applyFilters();
+                    });
+                }
+                
+                if (locationFilter) {
+                    locationFilter.addEventListener('change', (e) => {
+                        this.currentFilters.location = e.target.value;
+                        this.applyFilters();
+                    });
+                }
+            }
+            
+            setupEventLinkListeners() {
+                // Event-Delegation für Event-Links
+                const eventsGrid = document.getElementById('eventsGrid');
+                if (eventsGrid) {
+                    eventsGrid.addEventListener('click', (e) => {
+                        const eventLink = e.target.closest('.event-link');
+                        if (eventLink) {
+                            e.preventDefault();
+                            const eventId = parseInt(eventLink.getAttribute('data-event-id'));
+                            this.showEventDetails(eventId);
+                        }
+                    });
+                }
+            }
+            
+            showEventDetails(eventId) {
+                const event = this.events.find(e => e.id === eventId);
+                if (!event) {
+                    console.error('Event not found:', eventId);
+                    return;
+                }
+                
+                // Event-Details in Modal anzeigen
+                const modal = this.createEventModal(event);
+                document.body.appendChild(modal);
+                
+                // Modal anzeigen
+                requestAnimationFrame(() => {
+                    modal.classList.add('show');
+                });
+                
+                // Schließen-Funktionalität
+                const closeBtn = modal.querySelector('.modal-close');
+                const overlay = modal.querySelector('.modal-overlay');
+                
+                const closeModal = () => {
+                    modal.classList.remove('show');
+                    setTimeout(() => {
+                        if (modal.parentNode) {
+                            modal.parentNode.removeChild(modal);
+                        }
+                    }, 300);
+                };
+                
+                if (closeBtn) closeBtn.addEventListener('click', closeModal);
+                if (overlay) overlay.addEventListener('click', closeModal);
+                
+                // ESC-Taste zum Schließen
+                const escHandler = (e) => {
+                    if (e.key === 'Escape') {
+                        closeModal();
+                        document.removeEventListener('keydown', escHandler);
+                    }
+                };
+                document.addEventListener('keydown', escHandler);
+            }
+            
+            createEventModal(event) {
+                const eventDate = new Date(event.date);
+                const formattedDate = eventDate.toLocaleDateString('de-DE', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                const modal = document.createElement('div');
+                modal.className = 'event-modal';
+                modal.innerHTML = `
+                    <div class="modal-overlay"></div>
+                    <div class="modal-content">
+                        <button class="modal-close" aria-label="Schließen">&times;</button>
+                        <div class="modal-header">
+                            <h2>${event.title}</h2>
+                            <span class="event-category">${this.getCategoryName(event.category)}</span>
+                        </div>
+                        <div class="modal-body">
+                            <div class="event-detail-item">
+                                <strong>📅 Datum:</strong> ${formattedDate}${event.time ? ` um ${event.time} Uhr` : ''}
+                            </div>
+                            <div class="event-detail-item">
+                                <strong>📍 Ort:</strong> ${event.location}
+                            </div>
+                            <div class="event-detail-item">
+                                <strong>💶 Preis:</strong> ${event.price || 'Preis auf Anfrage'}
+                            </div>
+                            <div class="event-description-full">
+                                <p>${event.description}</p>
+                            </div>
+                            ${event.tags ? `
+                                <div class="event-tags">
+                                    ${event.tags.map(tag => `<span class="tag">#${tag}</span>`).join('')}
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="modal-footer">
+                            <button class="btn btn-primary" onclick="window.print()">🖨️ Drucken</button>
+                            <button class="btn btn-secondary" onclick="this.closest('.event-modal').querySelector('.modal-close').click()">Schließen</button>
+                        </div>
+                    </div>
+                `;
+                
+                return modal;
+            }
+            
+            applyFilters() {
+                this.filteredEvents = this.events.filter(event => {
+                    // Datum Filter
+                    if (this.currentFilters.date) {
+                        const eventDate = new Date(event.date);
+                        const now = new Date();
+                        
+                        switch (this.currentFilters.date) {
+                            case 'today':
+                                if (eventDate.toDateString() !== now.toDateString()) {
+                                    return false;
+                                }
+                                break;
+                            case 'week':
+                                const weekFromNow = new Date(now.getTime() + 7 * 24 * 60 * 60 * 1000);
+                                if (eventDate < now || eventDate > weekFromNow) {
+                                    return false;
+                                }
+                                break;
+                            case 'month':
+                                const monthFromNow = new Date(now.getTime() + 30 * 24 * 60 * 60 * 1000);
+                                if (eventDate < now || eventDate > monthFromNow) {
+                                    return false;
+                                }
+                                break;
+                        }
+                    }
+                    
+                    // Kategorie Filter
+                    if (this.currentFilters.category && event.category !== this.currentFilters.category) {
+                        return false;
+                    }
+                    
+                    // Ort Filter
+                    if (this.currentFilters.location) {
+                        const locationMap = {
+                            'mitte': ['Innenstadt', 'Marktplatz', 'Schlossgarten', 'Stuttgart-Mitte'],
+                            'bad-cannstatt': ['Bad Cannstatt', 'Cannstatter Wasen', 'Mercedes-Benz Arena'],
+                            'vaihingen': ['Vaihingen', 'Universität Stuttgart']
+                        };
+                        
+                        const allowedLocations = locationMap[this.currentFilters.location] || [];
+                        const matchesLocation = allowedLocations.some(loc => 
+                            event.location.toLowerCase().includes(loc.toLowerCase())
+                        );
+                        
+                        if (!matchesLocation) {
+                            return false;
+                        }
+                    }
+                    
+                    return true;
+                });
+                
+                this.renderEvents();
+            }
+            
+            renderEvents() {
+                const eventsGrid = document.getElementById('eventsGrid');
+                if (!eventsGrid) return;
+                
+                eventsGrid.classList.remove('loading');
+                
+                if (this.filteredEvents.length === 0) {
+                    eventsGrid.innerHTML = this.renderEmptyState();
+                    return;
+                }
+                
+                const sortedEvents = this.filteredEvents.sort((a, b) => {
+                    if (a.featured && !b.featured) return -1;
+                    if (!a.featured && b.featured) return 1;
+                    return new Date(a.date) - new Date(b.date);
+                });
+                
+                eventsGrid.innerHTML = sortedEvents.map(event => this.renderEventCard(event)).join('');
+                this.animateEventCards();
+            }
+            
+            renderEventCard(event) {
+                const eventDate = new Date(event.date);
+                const formattedDate = eventDate.toLocaleDateString('de-DE', {
+                    weekday: 'long',
+                    year: 'numeric',
+                    month: 'long',
+                    day: 'numeric'
+                });
+                
+                const categoryColors = {
+                    'kultur': 'var(--color-primary)',
+                    'sport': 'var(--color-success)',
+                    'musik': 'var(--stuttgart-yellow)',
+                    'theater': '#9c27b0'
+                };
+                
+                const categoryColor = categoryColors[event.category] || 'var(--color-primary)';
+                
+                return `
+                    <div class="event-card" data-event-id="${event.id}">
+                        <div class="event-image" style="background: linear-gradient(135deg, ${categoryColor}, ${categoryColor}dd);">
+                            ${this.getCategoryIcon(event.category)}
+                            ${event.featured ? '<div class="featured-badge">Highlight</div>' : ''}
+                        </div>
+                        <div class="event-content">
+                            <div class="event-category" style="background-color: ${categoryColor};">
+                                ${this.getCategoryName(event.category)}
+                            </div>
+                            <h3 class="event-title">${event.title}</h3>
+                            <div class="event-meta">
+                                <div class="event-date">
+                                    📅 ${formattedDate}${event.time ? `, ${event.time}` : ''}
+                                </div>
+                                <div class="event-location">
+                                    📍 ${event.location}
+                                </div>
+                            </div>
+                            <p class="event-description">${event.description}</p>
+                            <div class="event-footer">
+                                <span class="event-price">${event.price || 'Preis auf Anfrage'}</span>
+                                <a href="#" class="event-link" data-event-id="${event.id}">
+                                    Mehr erfahren →
+                                </a>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            getCategoryIcon(category) {
+                const icons = {
+                    'kultur': '🎭',
+                    'sport': '⚽',
+                    'musik': '🎵',
+                    'theater': '🎪'
+                };
+                
+                return `<span class="category-icon">${icons[category] || '📅'}</span>`;
+            }
+            
+            getCategoryName(category) {
+                const names = {
+                    'kultur': 'Kultur',
+                    'sport': 'Sport',
+                    'musik': 'Musik',
+                    'theater': 'Theater'
+                };
+                
+                return names[category] || 'Event';
+            }
+            
+            renderEmptyState() {
+                return `
+                    <div class="empty-state">
+                        <div style="font-size: 4rem; margin-bottom: 1rem;">😕</div>
+                        <h3>Keine Events gefunden</h3>
+                        <p>Mit den aktuellen Filtereinstellungen wurden keine Events gefunden.</p>
+                        <button class="btn btn-primary" onclick="eventsManager.clearFilters()">
+                            Filter zurücksetzen
+                        </button>
+                    </div>
+                `;
+            }
+            
+            clearFilters() {
+                const dateFilter = document.getElementById('dateFilter');
+                const categoryFilter = document.getElementById('categoryFilter');
+                const locationFilter = document.getElementById('locationFilter');
+                
+                if (dateFilter) dateFilter.value = '';
+                if (categoryFilter) categoryFilter.value = '';
+                if (locationFilter) locationFilter.value = '';
+                
+                this.currentFilters = { date: '', category: '', location: '' };
+                this.applyFilters();
+                
+                if (window.stuttgartApp) {
+                    window.stuttgartApp.showNotification('Filter wurden zurückgesetzt', 'info');
+                }
+            }
+            
+            animateEventCards() {
+                const cards = document.querySelectorAll('.event-card');
+                cards.forEach((card, index) => {
+                    card.style.opacity = '0';
+                    card.style.transform = 'translateY(30px)';
+                    
+                    setTimeout(() => {
+                        card.style.transition = 'all 0.4s ease-out';
+                        card.style.opacity = '1';
+                        card.style.transform = 'translateY(0)';
+                    }, index * 100);
+                });
+            }
+            
+            showError(message) {
+                const eventsGrid = document.getElementById('eventsGrid');
+                if (eventsGrid) {
+                    eventsGrid.innerHTML = `
+                        <div class="error-state">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">❌</div>
+                            <h3>Fehler beim Laden</h3>
+                            <p>${message}</p>
+                            <button class="btn btn-primary" onclick="location.reload()">
+                                Seite neu laden
+                            </button>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // =================================================================================
+        // NEWS MANAGER
+        // =================================================================================
+        class NewsManager {
+            constructor() {
+                this.news = [];
+                this.filteredNews = [];
+                this.currentQuery = '';
+                this.currentSort = 'date';
+                this.init();
+            }
+            
+            async init() {
+                try {
+                    await this.loadNews();
+                    this.setupEventListeners();
+                    this.renderNews();
+                } catch (error) {
+                    console.error('Error initializing NewsManager:', error);
+                    this.showError('Fehler beim Laden der Nachrichten');
+                }
+            }
+            
+            async loadNews() {
+                try {
+                    const response = await fetch('data/news.json');
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! status: ${response.status}`);
+                    }
+                    this.news = await response.json();
+                    this.filteredNews = [...this.news];
+                } catch (error) {
+                    console.error('Error loading news:', error);
+                    this.loadMockNews();
+                }
+            }
+            
+            loadMockNews() {
+                this.news = [
+                    {
+                        id: 1,
+                        title: "Stuttgart wird zur Smart City",
+                        summary: "Die Stadt Stuttgart hat ihr umfassendes Digitalisierungskonzept vorgestellt. Bis 2030 sollen alle Bereiche digitalisiert werden.",
+                        author: "Pressestelle Stadt Stuttgart",
+                        publishedAt: "2025-03-15T09:00:00Z",
+                        category: "stadtentwicklung",
+                        featured: true,
+                        readTime: 3,
+                        tags: ["digitalisierung", "smart-city"]
+                    },
+                    {
+                        id: 2,
+                        title: "Neuer Radweg zwischen Mitte und Vaihingen eröffnet",
+                        summary: "Der neue Radschnellweg verkürzt die Fahrzeit für Radfahrer erheblich und bietet moderne Infrastruktur.",
+                        author: "Amt für Stadtplanung",
+                        publishedAt: "2025-03-12T11:30:00Z",
+                        category: "verkehr",
+                        featured: false,
+                        readTime: 2,
+                        tags: ["radweg", "mobilität"]
+                    }
+                ];
+                this.filteredNews = [...this.news];
+            }
+            
+            setupEventListeners() {
+                const searchInput = document.getElementById('newsSearch');
+                if (searchInput) {
+                    searchInput.addEventListener('input', 
+                        this.debounce((e) => {
+                            this.currentQuery = e.target.value;
+                            this.applyFilters();
+                        }, 300)
+                    );
+                }
+                
+                const sortSelect = document.getElementById('newsSort');
+                if (sortSelect) {
+                    sortSelect.addEventListener('change', (e) => {
+                        this.currentSort = e.target.value;
+                        this.applySort();
+                    });
+                }
+            }
+            
+            applyFilters() {
+                if (!this.currentQuery.trim()) {
+                    this.filteredNews = [...this.news];
+                } else {
+                    const query = this.currentQuery.toLowerCase();
+                    this.filteredNews = this.news.filter(article => 
+                        article.title.toLowerCase().includes(query) ||
+                        article.summary.toLowerCase().includes(query) ||
+                        article.tags.some(tag => tag.toLowerCase().includes(query))
+                    );
+                }
+                this.applySort();
+            }
+            
+            applySort() {
+                this.filteredNews.sort((a, b) => {
+                    switch (this.currentSort) {
+                        case 'date':
+                            return new Date(b.publishedAt) - new Date(a.publishedAt);
+                        case 'relevance':
+                            if (a.featured && !b.featured) return -1;
+                            if (!a.featured && b.featured) return 1;
+                            return new Date(b.publishedAt) - new Date(a.publishedAt);
+                        default:
+                            return 0;
+                    }
+                });
+                this.renderNews();
+            }
+            
+            renderNews() {
+                this.renderHighlightNews();
+                this.renderNewsList();
+            }
+            
+            renderHighlightNews() {
+                const highlightContainer = document.getElementById('highlightNews');
+                if (!highlightContainer) return;
+                
+                const featuredNews = this.filteredNews.find(article => article.featured);
+                
+                if (!featuredNews) {
+                    highlightContainer.innerHTML = '<p>Keine hervorgehobenen Nachrichten verfügbar.</p>';
+                    return;
+                }
+                
+                const publishedDate = new Date(featuredNews.publishedAt);
+                const formattedDate = publishedDate.toLocaleDateString('de-DE');
+                
+                highlightContainer.innerHTML = `
+                    <div class="highlight-article">
+                        <h3 class="highlight-title">${featuredNews.title}</h3>
+                        <p class="highlight-summary">${featuredNews.summary}</p>
+                        <div class="highlight-meta">
+                            <span class="highlight-date">${formattedDate}</span>
+                            <span class="highlight-author">von ${featuredNews.author}</span>
+                            <span class="highlight-read-time">${featuredNews.readTime} Min.</span>
+                        </div>
+                    </div>
+                `;
+            }
+            
+            renderNewsList() {
+                const newsListContainer = document.getElementById('newsList');
+                if (!newsListContainer) return;
+                
+                const nonFeaturedNews = this.filteredNews.filter(article => !article.featured);
+                
+                if (nonFeaturedNews.length === 0) {
+                    newsListContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: 4rem;">📰</div>
+                            <h3>Keine Nachrichten gefunden</h3>
+                            <p>Versuchen Sie andere Suchbegriffe.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                newsListContainer.innerHTML = nonFeaturedNews
+                    .map(article => this.renderNewsItem(article))
+                    .join('');
+            }
+            
+            renderNewsItem(article) {
+                const publishedDate = new Date(article.publishedAt);
+                const formattedDate = publishedDate.toLocaleDateString('de-DE');
+                
+                return `
+                    <article class="news-item">
+                        <div class="news-item-header">
+                            <span class="news-category">${this.getCategoryName(article.category)}</span>
+                            <span class="news-date">${formattedDate}</span>
+                        </div>
+                        <h3 class="news-item-title">${article.title}</h3>
+                        <p class="news-item-summary">${article.summary}</p>
+                        <div class="news-item-meta">
+                            <span class="news-author">${article.author}</span>
+                            <span class="news-read-time">${article.readTime} Min.</span>
+                        </div>
+                    </article>
+                `;
+            }
+            
+            getCategoryName(category) {
+                const names = {
+                    'stadtentwicklung': 'Stadtentwicklung',
+                    'verkehr': 'Verkehr',
+                    'umwelt': 'Umwelt',
+                    'kultur': 'Kultur'
+                };
+                return names[category] || 'Allgemein';
+            }
+            
+            showError(message) {
+                const newsContainer = document.querySelector('.news-container');
+                if (newsContainer) {
+                    newsContainer.innerHTML = `
+                        <div class="error-state">
+                            <div style="font-size: 4rem;">❌</div>
+                            <h3>Fehler beim Laden</h3>
+                            <p>${message}</p>
+                        </div>
+                    `;
+                }
+            }
+            
+            debounce(func, wait) {
+                let timeout;
+                return function executedFunction(...args) {
+                    const later = () => {
+                        clearTimeout(timeout);
+                        func(...args);
+                    };
+                    clearTimeout(timeout);
+                    timeout = setTimeout(later, wait);
+                };
+            }
+        }
+
+        // =================================================================================
+        // SERVICES MANAGER
+        // =================================================================================
+        class ServicesManager {
+            constructor() {
+                this.services = [];
+                this.init();
+            }
+            
+            init() {
+                this.loadServices();
+                this.setupEventListeners();
+            }
+            
+            loadServices() {
+                // Mock Services für Bürger-Services
+                this.services = [
+                    {
+                        id: 1,
+                        title: "Personalausweis beantragen",
+                        description: "Beantragung eines neuen Personalausweises oder Verlängerung",
+                        keywords: ["ausweis", "personalausweis", "ausweisdokument"],
+                        office: "Bürgeramt",
+                        address: "Eberhardstraße 61, 70173 Stuttgart",
+                        phone: "0711 216-0",
+                        openingHours: "Mo-Fr 8-16 Uhr",
+                        documents: ["Bisheriger Ausweis", "Biometrisches Foto", "Geburtsurkunde"],
+                        costs: "37€ (unter 24 Jahre), 67€ (ab 24 Jahre)",
+                        duration: "3-4 Wochen"
+                    },
+                    {
+                        id: 2,
+                        title: "Ummeldung bei Umzug",
+                        description: "Ummeldung des Wohnsitzes innerhalb Stuttgarts oder Zuzug",
+                        keywords: ["umzug", "ummeldung", "anmeldung", "wohnsitz"],
+                        office: "Bürgeramt",
+                        address: "Eberhardstraße 61, 70173 Stuttgart",
+                        phone: "0711 216-0",
+                        openingHours: "Mo-Fr 8-16 Uhr",
+                        documents: ["Personalausweis", "Mietvertrag", "Anmeldebestätigung"],
+                        costs: "Kostenfrei",
+                        duration: "Sofort"
+                    },
+                    {
+                        id: 3,
+                        title: "Eheschließung anmelden",
+                        description: "Anmeldung zur Eheschließung im Standesamt Stuttgart",
+                        keywords: ["heirat", "eheschließung", "hochzeit", "standesamt"],
+                        office: "Standesamt",
+                        address: "Marktplatz 1, 70173 Stuttgart",
+                        phone: "0711 216-91234",
+                        openingHours: "Mo-Fr 8-12 Uhr, Do 14-18 Uhr",
+                        documents: ["Geburtsurkunde", "Personalausweis", "Ledigkeitsbescheinigung"],
+                        costs: "40-80€ je nach Trauungsort",
+                        duration: "Termin nach Anmeldung"
+                    }
+                ];
+            }
+            
+            setupEventListeners() {
+                const searchInput = document.getElementById('servicesSearch');
+                const searchButton = document.getElementById('servicesSearchBtn');
+                
+                if (searchInput) {
+                    searchInput.addEventListener('input', (e) => {
+                        this.performSearch(e.target.value);
+                    });
+                    
+                    searchInput.addEventListener('keypress', (e) => {
+                        if (e.key === 'Enter') {
+                            this.performSearch(e.target.value);
+                        }
+                    });
+                }
+                
+                if (searchButton) {
+                    searchButton.addEventListener('click', () => {
+                        const query = searchInput ? searchInput.value : '';
+                        this.performSearch(query);
+                    });
+                }
+                
+                // Quick service tags
+                document.querySelectorAll('.service-tag').forEach(tag => {
+                    tag.addEventListener('click', () => {
+                        const service = tag.getAttribute('data-service');
+                        this.performSearch(service);
+                        if (searchInput) {
+                            searchInput.value = service;
+                        }
+                    });
+                });
+            }
+            
+            performSearch(query) {
+                const resultsContainer = document.getElementById('servicesResults');
+                if (!resultsContainer) return;
+                
+                if (!query.trim()) {
+                    resultsContainer.innerHTML = `
+                        <div class="results-placeholder">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">📋</div>
+                            <p>Suchen Sie nach einem Service oder wählen Sie aus den häufigen Services oben</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                const results = this.searchServices(query);
+                
+                if (results.length === 0) {
+                    resultsContainer.innerHTML = `
+                        <div class="empty-state">
+                            <div style="font-size: 4rem; margin-bottom: 1rem;">🔍</div>
+                            <h3>Keine Services gefunden</h3>
+                            <p>Für "${query}" wurden keine passenden Services gefunden.</p>
+                        </div>
+                    `;
+                    return;
+                }
+                
+                resultsContainer.innerHTML = results.map(service => this.renderServiceResult(service)).join('');
+            }
+            
+            searchServices(query) {
+                const lowerQuery = query.toLowerCase();
+                return this.services.filter(service => 
+                    service.title.toLowerCase().includes(lowerQuery) ||
+                    service.description.toLowerCase().includes(lowerQuery) ||
+                    service.keywords.some(keyword => keyword.toLowerCase().includes(lowerQuery))
+                );
+            }
+            
+            renderServiceResult(service) {
+                return `
+                    <div class="service-result">
+                        <h3 class="service-result-title">${service.title}</h3>
+                        <p class="service-result-description">${service.description}</p>
+                        <div class="service-details">
+                            <div class="service-detail">
+                                <h4>Zuständiges Amt</h4>
+                                <p>${service.office}</p>
+                            </div>
+                            <div class="service-detail">
+                                <h4>Adresse</h4>
+                                <p>${service.address}</p>
+                            </div>
+                            <div class="service-detail">
+                                <h4>Telefon</h4>
+                                <p>${service.phone}</p>
+                            </div>
+                            <div class="service-detail">
+                                <h4>Öffnungszeiten</h4>
+                                <p>${service.openingHours}</p>
+                            </div>
+                            <div class="service-detail">
+                                <h4>Kosten</h4>
+                                <p>${service.costs}</p>
+                            </div>
+                            <div class="service-detail">
+                                <h4>Bearbeitungsdauer</h4>
+                                <p>${service.duration}</p>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        // =================================================================================
+        // DASHBOARD MANAGER
+        // =================================================================================
+        class DashboardManager {
+            constructor() {
+                this.charts = {};
+                this.maxRetries = 10;
+                this.retryCount = 0;
+                this.init();
+            }
+            
+            init() {
+                // Warten bis Chart.js geladen ist
+                if (typeof Chart !== 'undefined') {
+                    this.initCharts();
+                } else if (this.retryCount < this.maxRetries) {
+                    this.retryCount++;
+                    setTimeout(() => this.init(), 100);
+                } else {
+                    console.error('Chart.js konnte nicht geladen werden');
+                    this.showChartError();
+                }
+            }
+            
+            initCharts() {
+                try {
+                    // Überprüfe ob alle Canvas-Elemente existieren
+                    const requiredCanvases = [
+                        'greenSpaceChart',
+                        'bikeTrafficChart',
+                        'chargingStationsChart',
+                        'airQualityChart'
+                    ];
+                    
+                    const missingCanvases = requiredCanvases.filter(id => !document.getElementById(id));
+                    
+                    if (missingCanvases.length > 0) {
+                        console.error('Canvas-Elemente fehlen:', missingCanvases);
+                        this.showChartError('Einige Dashboard-Komponenten konnten nicht geladen werden.');
+                        return;
+                    }
+                    
+                    // Erstelle Charts mit individueller Fehlerbehandlung
+                    this.createGreenSpaceChart();
+                    this.createBikeTrafficChart();
+                    this.createChargingStationsChart();
+                    this.createAirQualityChart();
+                    
+                    console.log('Dashboard-Charts erfolgreich initialisiert');
+                } catch (error) {
+                    console.error('Fehler beim Initialisieren der Charts:', error);
+                    this.showChartError('Dashboard konnte nicht geladen werden.');
+                }
+            }
+            
+            showChartError(message = 'Die Dashboard-Visualisierungen konnten nicht geladen werden.') {
+                const dashboardSection = document.getElementById('dashboard');
+                if (!dashboardSection) return;
+                
+                const dashboardGrid = dashboardSection.querySelector('.dashboard-grid');
+                if (dashboardGrid) {
+                    dashboardGrid.innerHTML = `
+                        <div class="dashboard-error" style="grid-column: 1 / -1;">
+                            <div class="error-state">
+                                <div style="font-size: 4rem; margin-bottom: 1rem;">📊</div>
+                                <h3>Dashboard nicht verfügbar</h3>
+                                <p>${message}</p>
+                                <p style="font-size: var(--font-size-sm); color: var(--text-muted);">
+                                    Bitte überprüfen Sie Ihre Internetverbindung oder laden Sie die Seite neu.
+                                </p>
+                                <button class="btn btn-primary" onclick="location.reload()" style="margin-top: var(--spacing-lg);">
+                                    Seite neu laden
+                                </button>
+                            </div>
+                        </div>
+                    `;
+                }
+            }
+            
+            createGreenSpaceChart() {
+                try {
+                    const ctx = document.getElementById('greenSpaceChart');
+                    if (!ctx) {
+                        console.warn('greenSpaceChart Canvas nicht gefunden');
+                        return;
+                    }
+                    
+                    this.charts.greenSpace = new Chart(ctx, {
+                        type: 'doughnut',
+                        data: {
+                            labels: ['Grünflächen', 'Bebaut', 'Verkehrsflächen'],
+                            datasets: [{
+                                data: [42, 38, 20],
+                                backgroundColor: [
+                                    'var(--stuttgart-green)',
+                                    'var(--gray-400)',
+                                    'var(--stuttgart-blue)'
+                                ],
+                                borderWidth: 0
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    position: 'bottom'
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Fehler beim Erstellen des Grünflächen-Charts:', error);
+                    this.showSingleChartError('greenSpaceChart', 'Grünflächen-Chart');
+                }
+            }
+            
+            createBikeTrafficChart() {
+                try {
+                    const ctx = document.getElementById('bikeTrafficChart');
+                    if (!ctx) {
+                        console.warn('bikeTrafficChart Canvas nicht gefunden');
+                        return;
+                    }
+                    
+                    this.charts.bikeTraffic = new Chart(ctx, {
+                        type: 'line',
+                        data: {
+                            labels: ['Jan', 'Feb', 'Mär', 'Apr', 'Mai', 'Jun'],
+                            datasets: [{
+                                label: 'Radfahrer pro Tag',
+                                data: [1200, 1350, 1800, 2200, 2800, 3200],
+                                borderColor: 'var(--stuttgart-green)',
+                                backgroundColor: 'rgba(124, 179, 66, 0.1)',
+                                tension: 0.4,
+                                fill: true
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Fehler beim Erstellen des Fahrradverkehr-Charts:', error);
+                    this.showSingleChartError('bikeTrafficChart', 'Fahrradverkehr-Chart');
+                }
+            }
+            
+            createChargingStationsChart() {
+                try {
+                    const ctx = document.getElementById('chargingStationsChart');
+                    if (!ctx) {
+                        console.warn('chargingStationsChart Canvas nicht gefunden');
+                        return;
+                    }
+                    
+                    this.charts.chargingStations = new Chart(ctx, {
+                        type: 'bar',
+                        data: {
+                            labels: ['2020', '2021', '2022', '2023', '2024', '2025'],
+                            datasets: [{
+                                label: 'Ladestationen',
+                                data: [45, 68, 92, 134, 189, 245],
+                                backgroundColor: 'var(--stuttgart-yellow)',
+                                borderRadius: 4
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            plugins: {
+                                legend: {
+                                    display: false
+                                }
+                            },
+                            scales: {
+                                y: {
+                                    beginAtZero: true
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Fehler beim Erstellen des Ladestationen-Charts:', error);
+                    this.showSingleChartError('chargingStationsChart', 'Ladestationen-Chart');
+                }
+            }
+            
+            createAirQualityChart() {
+                try {
+                    const ctx = document.getElementById('airQualityChart');
+                    if (!ctx) {
+                        console.warn('airQualityChart Canvas nicht gefunden');
+                        return;
+                    }
+                    
+                    this.charts.airQuality = new Chart(ctx, {
+                        type: 'radar',
+                        data: {
+                            labels: ['NO2', 'PM10', 'PM2.5', 'O3', 'SO2'],
+                            datasets: [{
+                                label: 'Aktuell',
+                                data: [65, 45, 38, 55, 20],
+                                borderColor: 'var(--stuttgart-blue)',
+                                backgroundColor: 'rgba(0, 92, 169, 0.2)',
+                                pointBackgroundColor: 'var(--stuttgart-blue)'
+                            }, {
+                                label: 'Grenzwert',
+                                data: [80, 60, 50, 70, 40],
+                                borderColor: 'var(--stuttgart-red)',
+                                backgroundColor: 'rgba(211, 47, 47, 0.1)',
+                                pointBackgroundColor: 'var(--stuttgart-red)'
+                            }]
+                        },
+                        options: {
+                            responsive: true,
+                            maintainAspectRatio: false,
+                            scales: {
+                                r: {
+                                    beginAtZero: true,
+                                    max: 100
+                                }
+                            }
+                        }
+                    });
+                } catch (error) {
+                    console.error('Fehler beim Erstellen des Luftqualität-Charts:', error);
+                    this.showSingleChartError('airQualityChart', 'Luftqualität-Chart');
+                }
+            }
+            
+            showSingleChartError(canvasId, chartName) {
+                const canvas = document.getElementById(canvasId);
+                if (!canvas) return;
+                
+                const dashboardCard = canvas.closest('.dashboard-card');
+                if (dashboardCard) {
+                    const cardContent = dashboardCard.querySelector('canvas').parentElement;
+                    cardContent.innerHTML = `
+                        <div style="display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 250px; color: var(--text-muted);">
+                            <div style="font-size: 3rem; margin-bottom: 1rem;">📊</div>
+                            <p style="text-align: center; font-size: var(--font-size-sm);">
+                                ${chartName} konnte nicht geladen werden
+                            </p>
+                        </div>
+                    `;
+                }
+            }
+        }
+
+        // =================================================================================
+        // NOTIFICATION STYLES
+        // =================================================================================
+        const notificationStyles = `
+            .notification {
+                position: fixed;
+                top: 20px;
+                right: 20px;
+                background: white;
+                border-radius: 8px;
+                box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+                z-index: 10000;
+                transform: translateX(100%);
+                transition: transform 0.3s ease-in-out;
+                max-width: 400px;
+                border-left: 4px solid;
+            }
+            
+            .notification.show {
+                transform: translateX(0);
+            }
+            
+            .notification.hide {
+                transform: translateX(100%);
+            }
+            
+            .notification-info {
+                border-left-color: var(--color-primary);
+            }
+            
+            .notification-success {
+                border-left-color: var(--color-success);
+            }
+            
+            .notification-warning {
+                border-left-color: var(--color-accent);
+            }
+            
+            .notification-error {
+                border-left-color: var(--color-error);
+            }
+            
+            .notification-content {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                padding: 16px;
+            }
+            
+            .notification-message {
+                flex: 1;
+                margin-right: 12px;
+                font-size: 14px;
+                line-height: 1.4;
+            }
+            
+            .notification-close {
+                background: none;
+                border: none;
+                cursor: pointer;
+                padding: 4px;
+                border-radius: 4px;
+                transition: background-color 0.2s;
+                font-size: 18px;
+                width: 24px;
+                height: 24px;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+            }
+            
+            .notification-close:hover {
+                background-color: rgba(0, 0, 0, 0.1);
+            }
+            
+            @media (max-width: 576px) {
+                .notification {
+                    top: 10px;
+                    right: 10px;
+                    left: 10px;
+                    max-width: none;
+                    transform: translateY(-100%);
+                }
+                
+                .notification.show {
+                    transform: translateY(0);
+                }
+                
+                .notification.hide {
+                    transform: translateY(-100%);
+                }
+            }
+            
+            /* Event Cards zusätzliche Styles */
+            .empty-state,
+            .error-state {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                justify-content: center;
+                padding: var(--spacing-3xl);
+                text-align: center;
+                color: var(--text-muted);
+                grid-column: 1 / -1;
+            }
+            
+            .empty-state h3,
+            .error-state h3 {
+                color: var(--text-secondary);
+                margin-bottom: var(--spacing-md);
+                margin-top: var(--spacing-md);
+            }
+            
+            .featured-badge {
+                position: absolute;
+                top: var(--spacing-sm);
+                right: var(--spacing-sm);
+                background: var(--color-accent);
+                color: var(--text-primary);
+                padding: var(--spacing-xs) var(--spacing-sm);
+                border-radius: var(--radius-sm);
+                font-size: var(--font-size-xs);
+                font-weight: 600;
+                text-transform: uppercase;
+            }
+            
+            .category-icon {
+                font-size: 2em;
+                position: relative;
+                z-index: 2;
+            }
+            
+            .event-footer {
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                margin-top: var(--spacing-lg);
+                padding-top: var(--spacing-md);
+                border-top: 1px solid var(--gray-200);
+            }
+            
+            .event-price {
+                font-weight: 600;
+                color: var(--color-primary);
+            }
+            
+            .results-placeholder {
+                text-align: center;
+                color: var(--text-muted);
+                padding: var(--spacing-3xl);
+            }
+            
+            /* Event Modal Styles */
+            .event-modal {
+                position: fixed;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                z-index: 2000;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                opacity: 0;
+                visibility: hidden;
+                transition: opacity 0.3s ease, visibility 0.3s ease;
+            }
+            
+            .event-modal.show {
+                opacity: 1;
+                visibility: visible;
+            }
+            
+            .modal-overlay {
+                position: absolute;
+                top: 0;
+                left: 0;
+                right: 0;
+                bottom: 0;
+                background: rgba(0, 0, 0, 0.7);
+                backdrop-filter: blur(4px);
+            }
+            
+            .modal-content {
+                position: relative;
+                background: var(--bg-primary);
+                border-radius: var(--radius-lg);
+                max-width: 600px;
+                width: 90%;
+                max-height: 90vh;
+                overflow-y: auto;
+                box-shadow: var(--shadow-xl);
+                z-index: 2001;
+                transform: scale(0.9);
+                transition: transform 0.3s ease;
+            }
+            
+            .event-modal.show .modal-content {
+                transform: scale(1);
+            }
+            
+            .modal-close {
+                position: absolute;
+                top: var(--spacing-md);
+                right: var(--spacing-md);
+                background: var(--gray-200);
+                border: none;
+                border-radius: 50%;
+                width: 32px;
+                height: 32px;
+                font-size: 24px;
+                line-height: 1;
+                cursor: pointer;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                transition: background-color 0.2s;
+                z-index: 10;
+            }
+            
+            .modal-close:hover {
+                background: var(--gray-300);
+            }
+            
+            .modal-header {
+                background: linear-gradient(135deg, var(--color-primary), var(--color-primary-dark));
+                color: var(--text-inverse);
+                padding: var(--spacing-2xl) var(--spacing-xl);
+                border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+            }
+            
+            .modal-header h2 {
+                margin: 0;
+                color: var(--text-inverse);
+                font-size: var(--font-size-2xl);
+            }
+            
+            .modal-header .event-category {
+                display: inline-block;
+                margin-top: var(--spacing-sm);
+                background: rgba(255, 255, 255, 0.2);
+                padding: var(--spacing-xs) var(--spacing-md);
+                border-radius: var(--radius-md);
+                font-size: var(--font-size-sm);
+            }
+            
+            .modal-body {
+                padding: var(--spacing-xl);
+            }
+            
+            .event-detail-item {
+                margin-bottom: var(--spacing-md);
+                padding: var(--spacing-md);
+                background: var(--gray-50);
+                border-radius: var(--radius-md);
+                font-size: var(--font-size-base);
+            }
+            
+            .event-detail-item strong {
+                display: block;
+                margin-bottom: var(--spacing-xs);
+                color: var(--text-primary);
+            }
+            
+            .event-description-full {
+                margin-top: var(--spacing-lg);
+                padding: var(--spacing-lg);
+                background: var(--bg-secondary);
+                border-radius: var(--radius-md);
+                line-height: 1.6;
+            }
+            
+            .event-tags {
+                display: flex;
+                flex-wrap: wrap;
+                gap: var(--spacing-sm);
+                margin-top: var(--spacing-lg);
+            }
+            
+            .event-tags .tag {
+                background: var(--color-primary);
+                color: var(--text-inverse);
+                padding: var(--spacing-xs) var(--spacing-sm);
+                border-radius: var(--radius-sm);
+                font-size: var(--font-size-xs);
+                font-weight: 500;
+            }
+            
+            .modal-footer {
+                padding: var(--spacing-lg) var(--spacing-xl);
+                border-top: 1px solid var(--gray-200);
+                display: flex;
+                gap: var(--spacing-md);
+                justify-content: flex-end;
+            }
+            
+            @media (max-width: 576px) {
+                .modal-content {
+                    width: 95%;
+                    max-height: 95vh;
+                }
+                
+                .modal-header {
+                    padding: var(--spacing-lg);
+                }
+                
+                .modal-header h2 {
+                    font-size: var(--font-size-xl);
+                }
+                
+                .modal-body {
+                    padding: var(--spacing-md);
+                }
+                
+                .modal-footer {
+                    flex-direction: column;
+                    padding: var(--spacing-md);
+                }
+                
+                .modal-footer .btn {
+                    width: 100%;
+                }
+            }
+        `;
+
+        // Add notification styles to head
+        const styleSheet = document.createElement('style');
+        styleSheet.textContent = notificationStyles;
+        document.head.appendChild(styleSheet);
+
+        // =================================================================================
+        // INITIALIZATION
+        // =================================================================================
+        document.addEventListener('DOMContentLoaded', () => {
+            // Initialize all managers
+            window.stuttgartApp = new StuttgartMobilApp();
+            window.eventsManager = new EventsManager();
+            window.newsManager = new NewsManager();
+            window.servicesManager = new ServicesManager();
+            window.dashboardManager = new DashboardManager();
+            
+            console.log('Stuttgart Mobil App initialized successfully!');
+        });
+    </script>
+</body>
+</html>
