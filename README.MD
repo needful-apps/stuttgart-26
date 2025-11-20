@@ -39,3 +39,34 @@ Mini-Datenauswertung rein im Frontend:
   - Fahrradverkehr
   - E-Ladestationen
   - Luftqualität
+---
+
+## 🐛 Issues und Fehler
+
+Die Datei `Tests.MD` enthält eine detaillierte Analyse mit **28 offenen Fehlern**, die behoben werden müssen.
+
+### Issue-Erstellung
+
+Alle Fehler wurden strukturiert aufbereitet und können als GitHub Issues angelegt werden:
+
+- **📋 [ISSUES_ANLEITUNG.md](ISSUES_ANLEITUNG.md)** - Schritt-für-Schritt Anleitung
+- **🤖 [create-issues.js](create-issues.js)** - Automatisches Script zur Issue-Erstellung
+- **📊 [ISSUES_ZUSAMMENFASSUNG.md](ISSUES_ZUSAMMENFASSUNG.md)** - Übersicht aller Issues
+- **📦 [issues-to-create.json](issues-to-create.json)** - Strukturierte Issue-Daten
+
+### Schnellstart
+
+```bash
+# GitHub Token erstellen auf: https://github.com/settings/tokens
+# Dann Script ausführen:
+export GITHUB_TOKEN="dein_token_hier"
+node create-issues.js
+```
+
+### Issue-Kategorien
+
+- 🔴 **3 kritische Issues** (XSS-Sicherheit, CSP, Mobile Menu)
+- 🟡 **12 mittelschwere Issues** (UX, Accessibility, Datenstrukturen)
+- 🟢 **13 kleinere Issues** (Code-Qualität, Performance, Browser-Kompatibilität)
+
+Siehe [ISSUES_ZUSAMMENFASSUNG.md](ISSUES_ZUSAMMENFASSUNG.md) für Details.
